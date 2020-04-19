@@ -1,0 +1,17 @@
+---
+
+package_version: 7.4.0 #7.6.2
+package_arch: x86_64
+file_directory: ../rpms
+files: 
+  logstash: 
+    - "logstash-{{ package_version }}-{{ package_arch }}.rpm"
+  elasticsearch: 
+    - "elasticsearch-{{ package_version }}-{{ package_arch }}.rpm"
+  apmserver: 
+    - "apm-server-{{ package_version }}-{{ package_arch }}.rpm"
+  kibana: 
+    - "kibana-{{ package_version }}-{{ package_arch }}.rpm"
+  beats: 
+    - "filebeat-{{ package_version }}-{{ package_arch }}.rpm"
+    - "metricbeat-{{ package_version }}-{{ package_arch }}.rpm" 

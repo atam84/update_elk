@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  become: yes
+  remote_user: xenos
+  tasks:
+    - name: Reboot servers
+      reboot:
+        msg: "We reboot that servers."
+
+    - name: waiting the servers to become reachable
+      wait_for_connection:
+        connect_timeout: 30
+        delay: 5

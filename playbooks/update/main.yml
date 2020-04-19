@@ -1,0 +1,78 @@
+---
+
+- name: '[o_0] - Upgrade {{ target_hosts }}'
+  hosts: "{{ target_hosts }}"
+  remote_user: xenos
+  become: yes
+  gather_facts: no
+  serial: 1
+  vars_files:
+  tasks:
+    - name: "{{ target_hosts|upper }} - Include defaults global vars"
+      include_vars:
+        file: "../../vars/main.yml"
+
+    - debug:
+        var: file_directory
+
+    - debug:
+        var: files
+
+    # load all services definition from ../../vars/services/<service_name>.yml
+    - name: "{{ target_hosts|upper }} - Loading all services definition for {{ target_hosts }}"
+      include_vars: 
+        file: "../../vars/services/{{ target_hosts }}.yml"
+        name: "{{ target_hosts }}"
+
+    - set_fact:
+        services: "{{ lookup('vars', target_hosts) }}"
+
+    #- name: "Debug {{ target_hosts }}"
+    #  #vars:
+    #  #  - services: "{{ lookup('vars', target_hosts) }}"
+    #  debug:
+    #    var: services
+
+    - name: "{{ target_hosts|upper }} - Load ansible service facts"
+      service_facts:
+
+    - name: "{{ target_hosts|upper }} - Stop services"
+      include_tasks: stop_services.yml
+      loop: "{{ services.stop_services }}"
+      loop_control:
+        loop_var: service_item
+
+    # download the files
+    - name: "{{ target_hosts|upper }} - Copy files {{ files[target_hosts] }} needed to /var/tmp directory "
+      copy:
+        src: "../{{ file_directory }}/{{ item }}"
+        dest: "/var/tmp/{{ item }}"
+      loop: "{{ files[target_hosts] }}"
+    
+    # install the rpm with update flag
+    - name: "{{ target_hosts|upper }} - install packages for {{ target_hosts }}"
+      yum:
+        name: "/var/tmp/{{ item }}"
+        state: present
+      loop: "{{ files[target_hosts] }}"
+  
+    # do the system upgrade
+
+    - name: "{{ target_hosts|upper }} - Bring services up"
+      include_tasks: start_services.yml
+      loop: "{{ services.stop_services }}"
+      loop_control:
+        loop_var: service_item
+      when: services.restar_services_after_the_upgrade|bool == true
+
+    - block:
+        - name: "{{ target_hosts|upper }} - Reboot servers"
+          reboot:
+            msg: "We reboot that servers."
+  
+        - name: "{{ target_hosts|upper }} - waiting the servers to become reachable"
+          wait_for_connection:
+            connect_timeout: 30
+            delay: 5
+      when: services.reboot_the_server_after_the_upgrade|bool == true
+

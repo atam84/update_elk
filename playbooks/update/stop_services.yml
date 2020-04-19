@@ -1,0 +1,39 @@
+---
+# check if the service is up and running
+### block 1 -- we need to create a loop
+#- name: "stop_services.yml -- Debug {{ target_hosts }}"
+#  debug:
+#    var: service_item
+
+- name: "{{ target_hosts|upper }} - Get PIDs of {{ service_item.name }}"
+  shell: |
+    pgrep {{ service_item.name }}
+  register: proc_pids
+  ignore_errors: true
+
+#- debug:
+#    msg: "{{ ansible_facts.services['{{ service_item.name }}.service'] }} - PID: {{ proc_pids.stdout_lines }} - nPID: {{ proc_pids.stdout_lines|length }}"
+#  ignore_errors: true
+
+# stop the service
+- name: "{{ target_hosts|upper }} - Stop service {{ service_item.name }}.service" 
+  systemd:
+    name: "{{ service_item.name }}.service"
+    state: stopped
+  ignore_errors: true
+
+# check the service is fully down
+- name: "{{ target_hosts|upper }} - Wait until the process is stopped"
+  wait_for:
+    path: "/proc/{{ item }}/status"
+    state: absent
+  register: errors
+  loop: "{{ proc_pids.stdout_lines }}"
+  when: proc_pids.stdout_lines|length > 0
+  ignore_errors: true
+
+#- name: wait_for errors
+#  debug:
+#    var: errors
+
+### end of block 1

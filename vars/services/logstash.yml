@@ -1,0 +1,13 @@
+---
+
+stop_services:
+  - name: logstash
+    check_mode: port
+    ports:
+      - 9600
+
+
+restar_services_after_the_upgrade: true
+
+reboot_the_server_after_the_upgrade: false
+    

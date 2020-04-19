@@ -1,0 +1,19 @@
+---
+
+stop_services:
+  - name: kubelet
+    check_mode: port
+    ports:
+      - 10248
+  - name: crond
+    check_mode: process
+    number: 1
+    retry: 10
+    delay: 20
+
+
+restar_services_after_the_upgrade: true
+
+reboot_the_server_after_the_upgrade: false
+    
+    

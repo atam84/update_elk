@@ -1,0 +1,4 @@
+.git/
+**/*.retry
+*.retry
+rpms/*
