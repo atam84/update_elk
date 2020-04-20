@@ -1,5 +1,6 @@
 ---
 
+activate_debug: false
 package_version: 7.4.0 #7.6.2
 package_arch: x86_64
 file_directory: ../rpms

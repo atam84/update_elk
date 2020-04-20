@@ -14,9 +14,11 @@
 
     - debug:
         var: file_directory
+      when: activate_debug|bool == true
 
     - debug:
         var: files
+      when: activate_debug|bool == true
 
     # load all services definition from ../../vars/services/<service_name>.yml
     - name: "{{ target_hosts|upper }} - Loading all services definition for {{ target_hosts }}"
@@ -27,11 +29,12 @@
     - set_fact:
         services: "{{ lookup('vars', target_hosts) }}"
 
-    #- name: "Debug {{ target_hosts }}"
-    #  #vars:
-    #  #  - services: "{{ lookup('vars', target_hosts) }}"
-    #  debug:
-    #    var: services
+    - name: "Debug {{ target_hosts }}"
+      #vars:
+      #  - services: "{{ lookup('vars', target_hosts) }}"
+      debug:
+        var: services
+      when: activate_debug|bool == true
 
     - name: "{{ target_hosts|upper }} - Load ansible service facts"
       service_facts:
@@ -58,6 +61,25 @@
   
     # do the system upgrade
 
+
+    #
+    # Reboot servers if needed
+    #
+    - block:
+        - name: "{{ target_hosts|upper }} - Reboot servers"
+          reboot:
+            msg: "We reboot that servers."
+
+        - name: "{{ target_hosts|upper }} - waiting the servers to become reachable"
+          wait_for_connection:
+            connect_timeout: 30
+            delay: 5
+        
+      when: services.reboot_the_server_after_the_upgrade|bool == true
+
+    #
+    # Restart services
+    #
     - name: "{{ target_hosts|upper }} - Bring services up"
       include_tasks: start_services.yml
       loop: "{{ services.stop_services }}"
@@ -65,14 +87,6 @@
         loop_var: service_item
       when: services.restar_services_after_the_upgrade|bool == true
 
-    - block:
-        - name: "{{ target_hosts|upper }} - Reboot servers"
-          reboot:
-            msg: "We reboot that servers."
-  
-        - name: "{{ target_hosts|upper }} - waiting the servers to become reachable"
-          wait_for_connection:
-            connect_timeout: 30
-            delay: 5
-      when: services.reboot_the_server_after_the_upgrade|bool == true
+    
+
 

@@ -3,14 +3,14 @@
 stop_services:
   - name: metricbeat
     check_mode: process
-    number: 1
-    retry: 10
-    delay: 20
+    min_proc_number: 1
+    retry: 5
+    delay: 10
   - name: filebeat
     check_mode: process
-    number: 1
-    retry: 10
-    delay: 20
+    min_proc_number: 1
+    retry: 5
+    delay: 10
 
 restar_services_after_the_upgrade: true
 
