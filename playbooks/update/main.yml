@@ -8,43 +8,69 @@
   serial: 1
   vars_files:
   tasks:
+    #
+    #
+    # Load main.yml variable
     - name: "{{ target_hosts|upper }} - Include defaults global vars"
       include_vars:
         file: "../../vars/main.yml"
 
+    #
+    #
+    # display file_directory when debug mode is active
     - debug:
-        var: file_directory
-      when: activate_debug|bool == true
+        var: file_directory|default('not used')
+      when: activate_debug|default(false)|bool == true
 
+    #
+    #
+    # display files when debug mode is active
     - debug:
-        var: files
-      when: activate_debug|bool == true
+        var: files|default('not used')
+      when: activate_debug|default(false)|bool == true
 
-    # load all services definition from ../../vars/services/<service_name>.yml
+    #
+    #
+    # load all services definition from ../../vars/services/<service_name>.yml in {{ target_hosts }} variable
     - name: "{{ target_hosts|upper }} - Loading all services definition for {{ target_hosts }}"
       include_vars: 
         file: "../../vars/services/{{ target_hosts }}.yml"
         name: "{{ target_hosts }}"
 
+    #
+    #
+    # copy {{ target_hosts }} into services var more simple to use and more clear to understand
     - set_fact:
         services: "{{ lookup('vars', target_hosts) }}"
 
+    #
+    #
+    # display the values in services variable
     - name: "Debug {{ target_hosts }}"
-      #vars:
-      #  - services: "{{ lookup('vars', target_hosts) }}"
       debug:
         var: services
-      when: activate_debug|bool == true
+      when: activate_debug|default(false)|bool == true
 
+    #
+    #
+    # Load the existing services in the server
     - name: "{{ target_hosts|upper }} - Load ansible service facts"
       service_facts:
 
+    #
+    #
+    # trigger stop_services.yml for each service 
     - name: "{{ target_hosts|upper }} - Stop services"
       include_tasks: stop_services.yml
       loop: "{{ services.stop_services }}"
       loop_control:
         loop_var: service_item
 
+
+    ###########################################################################################################
+    #
+    #  here we can add specific tasks or include specific playbook when the services are stopped
+    #
     # download the files
     - name: "{{ target_hosts|upper }} - Copy files {{ files[target_hosts] }} needed to /var/tmp directory "
       copy:
@@ -58,13 +84,15 @@
         name: "/var/tmp/{{ item }}"
         state: present
       loop: "{{ files[target_hosts] }}"
-  
-    # do the system upgrade
+    #
+    #
+    #
+    ###########################################################################################################
 
 
+    #
     #
     # Reboot servers if needed
-    #
     - block:
         - name: "{{ target_hosts|upper }} - Reboot servers"
           reboot:
@@ -78,15 +106,12 @@
       when: services.reboot_the_server_after_the_upgrade|bool == true
 
     #
-    # Restart services
     #
+    # Restart services, even when the server is rebooted the services will bi restarted if services.restar_services_after_the_upgrade = true
     - name: "{{ target_hosts|upper }} - Bring services up"
       include_tasks: start_services.yml
       loop: "{{ services.stop_services }}"
       loop_control:
         loop_var: service_item
       when: services.restar_services_after_the_upgrade|bool == true
-
-    
-
 

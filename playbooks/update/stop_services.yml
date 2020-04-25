@@ -4,7 +4,7 @@
 - name: "stop_services.yml -- Debug {{ target_hosts }}"
   debug:
     var: service_item
-  when: activate_debug|bool == true
+  when: activate_debug|default(false)|bool == true
 
 - name: "{{ target_hosts|upper }} - Get PIDs of {{ service_item.name }}"
   shell: |
@@ -15,7 +15,7 @@
 - debug:
     msg: "{{ ansible_facts.services['{{ service_item.name }}.service'] }} - PID: {{ proc_pids.stdout_lines }} - nPID: {{ proc_pids.stdout_lines|length }}"
   ignore_errors: true
-  when: activate_debug|bool == true
+  when: activate_debug|default(false)|bool == true
 
 # stop the service
 - name: "{{ target_hosts|upper }} - Stop service {{ service_item.name }}.service" 
@@ -37,6 +37,6 @@
 - name: wait_for errors
   debug:
     var: errors
-  when: activate_debug|bool == true
+  when: activate_debug|default(false)|bool == true
 
 ### end of block 1
