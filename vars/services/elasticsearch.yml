@@ -2,10 +2,13 @@
 
 stop_services:
   - name: elasticsearch
-    check_mode: port
+    check_mode: port,process
     ports:
       - 9200
       - 9300
+    min_proc_number: 1
+    retry: 5
+    delay: 10
 
 restar_services_after_the_upgrade: true
 

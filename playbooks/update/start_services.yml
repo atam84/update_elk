@@ -22,46 +22,48 @@
 #
 # this block is triggered when we want check process is started by checking the process ids
 - block:
-  - name: "{{ target_hosts|upper }} - Check if process {{ service_item.name }} is running"
-    shell: |
-      nproc=0
-      for i in {1..{{ service_item.retry }}}
-      do
-        sleep {{ service_item.delay }}
-        nproc=$(pgrep {{ service_item.name }} | wc -l)
-        if [ ${nproc} -ge {{ service_item.min_proc_number }} ]; then
+    - name: "{{ target_hosts|upper }} - Check if process {{ service_item.name }} is running"
+      shell: |
+        nproc=0
+        for i in {1..{{ service_item.retry }}}
+        do
+          sleep {{ service_item.delay }}
+          #nproc=$(pgrep {{ service_item.name }} | wc -l)
+          nproc=$(ps -edf | grep {{ service_item.name }} | grep -v grep | wc -l)
+          if [ ${nproc} -ge {{ service_item.min_proc_number }} ]; then
+            echo ${nproc}
+            break
+          fi
+        done
+        if [ ${nproc} -lt {{ service_item.min_proc_number }} ]; then
           echo ${nproc}
-          break
         fi
-      done
-      if [ ${nproc} -lt {{ service_item.min_proc_number }} ]; then
-        echo ${nproc}
-      fi
-    register: nprocessus
+      register: nprocessus
 
-  - debug:
-      var: nprocessus
-    when: activate_debug|default(false)|bool == true
+    - debug:
+        var: nprocessus
+      #when: activate_debug|default(false)|bool == true
 
-  - pause:
-      prompt: "Do you want break the script execution (you can troubleshout the error in the server side then contibure) [ yes/no ]"
-      echo: yes
-    register: result
-    when: nprocessus.stdout|int < service_item.min_proc_number
+    - pause:
+        prompt: "Do you want break the script execution (you can troubleshout the error in the server side then contibure) [ yes/no ]"
+        echo: yes
+      register: result
+      when: nprocessus.stdout|int < service_item.min_proc_number
 
-  - set_fact:
-      nproc_break_execution: "{{ result.user_input }}"
-    when: nprocessus.stdout|int < service_item.min_proc_number
+    - set_fact:
+        nproc_break_execution: "{{ result.user_input }}"
+      when: nprocessus.stdout|int < service_item.min_proc_number
 
-  - debug:
-      var: nproc_break_execution
-    when: activate_debug|default(false)|bool == true
+    - debug:
+        var: nproc_break_execution
+      when: activate_debug|default(false)|bool == true
 
-  - name: "{{ target_hosts|upper }} - Breaking the exetion cause (number of process not correct)" 
-    fail: msg="Breaking the exetion cause (number of process not correct)  nproc = {{ nprocessus.stdout }} -- needed = {{ service_item.min_proc_number }}"
-    when: nproc_break_execution|default(false)|bool == true
+    - name: "{{ target_hosts|upper }} - Breaking the exetion cause (number of process not correct)" 
+      fail:
+        msg: "Breaking the exetion cause (number of process not correct)  nproc = {{ nprocessus.stdout }} -- needed = {{ service_item.min_proc_number }}"
+      when: nproc_break_execution|default(false)|bool == true
 
-when: service_item.check_mode is search("process")
+  when: service_item.check_mode is search("process")
 
 ### end of block
 
@@ -79,7 +81,7 @@ when: service_item.check_mode is search("process")
   loop: "{{ service_item.ports }}"
   ignore_errors: true
   when:
-    - service_item.check_mode == "port"
+    - service_item.check_mode is search("port")
     - service_status.changed|bool == true
     - service_status.failed|bool == false
 
@@ -97,7 +99,8 @@ when: service_item.check_mode is search("process")
       when: activate_debug|default(false)|bool == true
 
     - name: "{{ target_hosts|upper }} - Breaking the exetion cause (service not started)" 
-      fail: msg="Breaking the exetion cause (service not started) {{ service_item.name }}.service not present or execution error."
+      fail: 
+        msg: "Breaking the exetion cause (service not started) {{ service_item.name }}.service not present or execution error."
       when: service_break_execution|default(false)|bool == true
 
   when:
