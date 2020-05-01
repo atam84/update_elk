@@ -1,0 +1,15 @@
+---
+
+- name: "{{ target_hosts|upper }} - Copy RPM files to destination"
+  copy:
+    src: "../{{ file_directory }}/{{ item }}"
+    dest: "/var/tmp/{{ item }}"
+  loop: "{{ files[target_hosts] }}"
+
+# install the rpm files
+- name: "{{ target_hosts|upper }} - install packages for {{ target_hosts }}"
+  yum:
+    name: "/var/tmp/{{ item }}"
+    state: present
+  loop: "{{ files[target_hosts] }}"
+

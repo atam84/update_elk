@@ -1,0 +1,9 @@
+---
+
+- name: "{{ target_hosts|upper }} - Update the operating system"
+  yum:
+    name: "*"
+    state: latest
+
+
+    reboot_after_os_update

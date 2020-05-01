@@ -2,7 +2,6 @@
 
 - name: '[o_0] - Upgrade {{ target_hosts }}'
   hosts: "{{ target_hosts }}"
-  remote_user: xenos
   become: yes
   gather_facts: no
   serial: 1
@@ -72,18 +71,15 @@
     #  here we can add specific tasks or include specific playbook when the services are stopped
     #
     # download the files
-    - name: "{{ target_hosts|upper }} - Copy files {{ files[target_hosts] }} needed to /var/tmp directory "
-      copy:
-        src: "../{{ file_directory }}/{{ item }}"
-        dest: "/var/tmp/{{ item }}"
-      loop: "{{ files[target_hosts] }}"
-    
-    # install the rpm with update flag
-    - name: "{{ target_hosts|upper }} - install packages for {{ target_hosts }}"
-      yum:
-        name: "/var/tmp/{{ item }}"
-        state: present
-      loop: "{{ files[target_hosts] }}"
+    - name: "{{ target_hosts|upper }} - Update OS"
+      include_tasks: elk_stack_installer.yml
+      when: update_os|default(false)|bool == true
+
+
+    - name: "{{ target_hosts|upper }} - Install Elasticsearch stack + beats"
+      include_tasks: elk_stack_installer.yml
+      when: install_elk_stack|default(false)|bool == true
+
     #
     #
     #

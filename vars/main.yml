@@ -1,6 +1,13 @@
 ---
 
 activate_debug: false
+
+
+update_os: true
+reboot_after_os_update: true
+install_elk_stack: true
+
+
 package_version: 7.6.2 # 7.4.0 #
 package_arch: x86_64
 file_directory: ../rpms
@@ -15,4 +22,5 @@ files:
     - "kibana-{{ package_version }}-{{ package_arch }}.rpm"
   beats: 
     - "filebeat-{{ package_version }}-{{ package_arch }}.rpm"
-    - "metricbeat-{{ package_version }}-{{ package_arch }}.rpm" 
+    - "metricbeat-{{ package_version }}-{{ package_arch }}.rpm"
+
