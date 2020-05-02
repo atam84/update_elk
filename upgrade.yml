@@ -2,8 +2,8 @@
 
 - include: playbooks/update/main.yml target_hosts='elasticsearch'
 
-#- include: playbooks/update/main.yml target_hosts='kibana'
+- include: playbooks/update/main.yml target_hosts='kibana'
 
-#- include: playbooks/update/main.yml target_hosts='logstash'
+- include: playbooks/update/main.yml target_hosts='logstash'
 
-#- include: playbooks/update/main.yml target_hosts='beats'
+- include: playbooks/update/main.yml target_hosts='beats' parallel_host=5

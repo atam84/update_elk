@@ -4,7 +4,7 @@
   hosts: "{{ target_hosts }}"
   become: yes
   gather_facts: no
-  serial: 1
+  serial: "{{ parallel_host|default(1)|int }}"
   vars_files:
   tasks:
     #
