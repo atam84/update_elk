@@ -1,14 +1,21 @@
 ---
 # check if the service is up and running
 ### block 1 -- we need to create a loop
+
+#
+#
+# if debug is actived, display the service processed now
 - name: "stop_services.yml -- Debug {{ target_hosts }}"
   debug:
     var: service_item
   when: activate_debug|default(false)|bool == true
 
+#
+#
+# get proccessus ids
 - name: "{{ target_hosts|upper }} - Get PIDs of {{ service_item.name }}"
   shell: |
-    pgrep {{ service_item.name }}
+    ps -eo pid,command | grep {{ service_item.process_find|default(service_item.name) }} | grep -v grep | awk '{print $1}'
   register: proc_pids
   ignore_errors: true
 
@@ -17,6 +24,8 @@
   ignore_errors: true
   when: activate_debug|default(false)|bool == true
 
+#
+#
 # stop the service
 - name: "{{ target_hosts|upper }} - Stop service {{ service_item.name }}.service" 
   systemd:
@@ -24,6 +33,17 @@
     state: stopped
   ignore_errors: true
 
+
+
+######################
+#
+# add instructions to kill process when the service is not stopped using systemd
+#
+######################
+
+
+#
+#
 # check the service is fully down
 - name: "{{ target_hosts|upper }} - Wait until the process is stopped"
   wait_for:
@@ -34,9 +54,19 @@
   when: proc_pids.stdout_lines|length > 0
   ignore_errors: true
 
+#
+#
+# debug the errors
 - name: wait_for errors
   debug:
     var: errors
   when: activate_debug|default(false)|bool == true
 
-### end of block 1
+
+
+######################
+#
+# add instructions to ask if we want to break the exection or continue if the process is not stopped or killed
+#
+######################
+

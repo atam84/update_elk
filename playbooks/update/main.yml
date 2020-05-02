@@ -70,12 +70,14 @@
     #
     #  here we can add specific tasks or include specific playbook when the services are stopped
     #
-    # download the files
+    #
+
+    # do the system update
     - name: "{{ target_hosts|upper }} - Update OS"
       include_tasks: elk_stack_installer.yml
       when: update_os|default(false)|bool == true
 
-
+    # do the package installation
     - name: "{{ target_hosts|upper }} - Install Elasticsearch stack + beats"
       include_tasks: elk_stack_installer.yml
       when: install_elk_stack|default(false)|bool == true

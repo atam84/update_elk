@@ -6,6 +6,9 @@
 #  debug:
 #    var: service_item
 
+#
+#
+# start service
 - name: "{{ target_hosts|upper }} - Start service {{ service_item.name }}.service"
   systemd:
     name: "{{ service_item.name }}.service"
@@ -13,6 +16,10 @@
   register: service_status
   ignore_errors: true
 
+
+#
+#
+# display result when debug mode is actived
 - debug:
     var: service_status
   when: activate_debug|default(false)|bool == true
@@ -22,6 +29,9 @@
 #
 # this block is triggered when we want check process is started by checking the process ids
 - block:
+    #
+    #
+    # Check if process is started
     - name: "{{ target_hosts|upper }} - Check if process {{ service_item.name }} is running"
       shell: |
         nproc=0
@@ -29,7 +39,8 @@
         do
           sleep {{ service_item.delay }}
           #nproc=$(pgrep {{ service_item.name }} | wc -l)
-          nproc=$(ps -edf | grep {{ service_item.name }} | grep -v grep | wc -l)
+          #nproc=$(ps -edf | grep {{ service_item.name }} | grep -v grep | wc -l)
+          nproc=$(ps -eo pid,command | grep {{ service_item.process_find|default(service_item.name) }} | grep -v grep | wc -l)
           if [ ${nproc} -ge {{ service_item.min_proc_number }} ]; then
             echo ${nproc}
             break
@@ -42,10 +53,10 @@
 
     - debug:
         var: nprocessus
-      #when: activate_debug|default(false)|bool == true
+      when: activate_debug|default(false)|bool == true
 
     - pause:
-        prompt: "Do you want break the script execution (you can troubleshout the error in the server side then contibure) [ yes/no ]"
+        prompt: "Do you want break the script execution (you can troubleshout the error in the server side then continue) [ yes/no ]"
         echo: yes
       register: result
       when: nprocessus.stdout|int < service_item.min_proc_number

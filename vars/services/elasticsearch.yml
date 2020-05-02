@@ -6,6 +6,7 @@ stop_services:
     ports:
       - 9200
       - 9300
+    process_find: "/usr/share/elasticsearch/jdk/bin/java"
     min_proc_number: 1
     retry: 5
     delay: 10

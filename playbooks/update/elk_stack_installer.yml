@@ -13,3 +13,8 @@
     state: present
   loop: "{{ files[target_hosts] }}"
 
+#
+#
+# need to add instructions if the installation is failed
+#
+#
