@@ -3,7 +3,17 @@
 - name: "{{ target_hosts|upper }} - Update the operating system"
   yum:
     name: "*"
+    update_cache: yes
     state: latest
 
+- block:
+    - name: Reboot servers
+      reboot:
+        msg: "We reboot that servers."
 
-    reboot_after_os_update
+    - name: waiting the servers to become reachable
+      wait_for_connection:
+        connect_timeout: 30
+        delay: 5
+  when: reboot_after_os_update|default(false)|bool == true
+

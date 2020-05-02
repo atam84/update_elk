@@ -16,6 +16,14 @@
 
     #
     #
+    # this section allow you to load specific vars to overwrite the global vars in vars/main.yml
+    - name: "{{ target_hosts|upper }} - Include global vars {{ target_hosts }}_global.yml if exist this overwrite the global vars"
+      include_vars:
+        file: "../../vars/services/{{ target_hosts }}_global.yml"
+      ignore_errors: true
+
+    #
+    #
     # display file_directory when debug mode is active
     - debug:
         var: file_directory|default('not used')
@@ -74,9 +82,21 @@
 
     # do the system update
     - name: "{{ target_hosts|upper }} - Update OS"
-      include_tasks: elk_stack_installer.yml
+      include_tasks: update_os.yml
       when: update_os|default(false)|bool == true
 
+    #
+    # we need to stop service again if the server is rebooted
+    # trigger stop_services.yml for each service 
+    - name: "{{ target_hosts|upper }} - Stop services after system update when reboot server is defined"
+      include_tasks: stop_services.yml
+      loop: "{{ services.stop_services }}"
+      loop_control:
+        loop_var: service_item
+      when: 
+        - update_os|default(false)|bool == true
+        - reboot_after_os_update|default(false)|bool == true
+    
     # do the package installation
     - name: "{{ target_hosts|upper }} - Install Elasticsearch stack + beats"
       include_tasks: elk_stack_installer.yml
