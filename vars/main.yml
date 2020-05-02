@@ -1,12 +1,13 @@
 ---
 
-# Any global variable here can be overwrited in service/<target_hosts>_global.yaml
+# Any global variable here can be overwrited in service/<target_hosts>_global.yml
 
 activate_debug: false
 
-
-update_os: true
-reboot_after_os_update: true
+########### Do not modify these two variables if one host run multiple service and set it in the service/<target_hosts>_global.yml
+update_os: false
+reboot_after_os_update: false
+#########################################
 install_elk_stack: true
 
 

@@ -1,4 +1,5 @@
 ---
 
-reboot_after_os_update: false
+update_os: true
+reboot_after_os_update: true
 
