@@ -7,6 +7,9 @@ activate_debug: false
 ########### Do not modify these two variables if one host run multiple service and set it in the service/<target_hosts>_global.yml
 update_os: false
 reboot_after_os_update: false
+
+reboot_connect_timeout: 60
+reboot_delay: 15
 #########################################
 install_elk_stack: true
 

@@ -1,9 +1,9 @@
 ---
 
-- include: playbooks/update/main.yml target_hosts='elasticsearch'
+- include: playbooks/update/main.yml target_hosts='elasticsearch' service='elk'
 
-- include: playbooks/update/main.yml target_hosts='kibana'
+- include: playbooks/update/main.yml target_hosts='kibana' service='elk'
 
-- include: playbooks/update/main.yml target_hosts='logstash'
+- include: playbooks/update/main.yml target_hosts='logstash' service='elk'
 
-- include: playbooks/update/main.yml target_hosts='beats' parallel_host=5
+- include: playbooks/update/main.yml target_hosts='beats' service='elk' parallel_host=5

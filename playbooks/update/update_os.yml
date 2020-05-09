@@ -1,10 +1,25 @@
 ---
 
+#
+#
+# we need to disable all non os repos
+- name: "{{ target_hosts|upper }} - Disable repos"
+
+
+
 - name: "{{ target_hosts|upper }} - Update the operating system"
   yum:
     name: "*"
     update_cache: yes
     state: latest
+
+
+#
+#
+# we need to re-enable the repos again
+- name: "{{ target_hosts|upper }} - Re-enable repos"
+
+
 
 - block:
     - name: Reboot servers
@@ -13,7 +28,7 @@
 
     - name: waiting the servers to become reachable
       wait_for_connection:
-        connect_timeout: 30
-        delay: 5
+        connect_timeout: "{{ reboot_connect_timeout }}"
+        delay: "{{ reboot_delay }}"
   when: reboot_after_os_update|default(false)|bool == true
 

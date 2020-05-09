@@ -19,7 +19,7 @@
     # this section allow you to load specific vars to overwrite the global vars in vars/main.yml
     - name: "{{ target_hosts|upper }} - Include global vars {{ target_hosts }}_global.yml if exist this overwrite the global vars"
       include_vars:
-        file: "../../vars/services/{{ target_hosts }}_global.yml"
+        file: "../../vars/services/{{ service }}/{{ target_hosts }}_global.yml"
       ignore_errors: true
 
     #
@@ -41,7 +41,7 @@
     # load all services definition from ../../vars/services/<service_name>.yml in {{ target_hosts }} variable
     - name: "{{ target_hosts|upper }} - Loading all services definition for {{ target_hosts }}"
       include_vars: 
-        file: "../../vars/services/{{ target_hosts }}.yml"
+        file: "../../vars/services/{{ service }}/{{ target_hosts }}.yml"
         name: "{{ target_hosts }}"
 
     #
@@ -118,18 +118,18 @@
 
         - name: "{{ target_hosts|upper }} - waiting the servers to become reachable"
           wait_for_connection:
-            connect_timeout: 30
-            delay: 5
+            connect_timeout: "{{ reboot_connect_timeout }}"
+            delay: "{{ reboot_delay }}"
         
-      when: services.reboot_the_server_after_the_upgrade|bool == true
+      when: services.reboot_the_server_after_the_upgrade|default(false)|bool == true
 
     #
     #
-    # Restart services, even when the server is rebooted the services will bi restarted if services.restar_services_after_the_upgrade = true
+    # Restart services, even when the server is rebooted the services will be restarted if services.restar_services_after_the_upgrade = true
     - name: "{{ target_hosts|upper }} - Bring services up"
       include_tasks: start_services.yml
       loop: "{{ services.stop_services }}"
       loop_control:
         loop_var: service_item
-      when: services.restar_services_after_the_upgrade|bool == true
+      when: services.restar_services_after_the_upgrade|default(false)|bool == true
 
