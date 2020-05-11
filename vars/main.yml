@@ -1,32 +1,25 @@
 ---
-
+#
 # Any global variable here can be overwrited in service/<target_hosts>_global.yml
+activate_debug: true
 
-activate_debug: false
-
+#
 ########### Do not modify these two variables if one host run multiple service and set it in the service/<target_hosts>_global.yml
-update_os: false
-reboot_after_os_update: false
+update_os: false                           # global variable to trigger the os update, can by set in the service/<service>_global.yml file
+reboot_after_os_update: false              # reboot the server after the os update, have the same think as update_os
 
+send_email_notification_on_failure: true   # send an email on failure, can by set in the service/<service>_global.yml file
+send_email_notification_on_success: true   # send an email on success, can by set in the service/<service>_global.yml file
+create_jira_issue_on_failure: true         # create issue on failure, can by set in the service/<service>_global.yml file
+create_jira_task_on_success: true          # create issue on success (to check the server for example), can by set in the service/<service>_global.yml file
+
+
+jira_server: set_jira_server_here          # jira server
+email_server: set_email_server_here        # email server
+
+#
+# this value must be reviewd for the physical server
 reboot_connect_timeout: 60
 reboot_delay: 15
 #########################################
-install_elk_stack: true
-
-
-package_version: 7.6.2 # 7.4.0 #
-package_arch: x86_64
-file_directory: ../rpms
-files: 
-  logstash: 
-    - "logstash-{{ package_version }}-{{ package_arch }}.rpm"
-  elasticsearch: 
-    - "elasticsearch-{{ package_version }}-{{ package_arch }}.rpm"
-  apmserver: 
-    - "apm-server-{{ package_version }}-{{ package_arch }}.rpm"
-  kibana: 
-    - "kibana-{{ package_version }}-{{ package_arch }}.rpm"
-  beats: 
-    - "filebeat-{{ package_version }}-{{ package_arch }}.rpm"
-    - "metricbeat-{{ package_version }}-{{ package_arch }}.rpm"
 

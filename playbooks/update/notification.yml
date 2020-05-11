@@ -1,0 +1,32 @@
+---
+
+#
+#
+# Email notification
+- name: Sending an e-mail using Gmail SMTP servers
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: xenos.psy@gmail.com
+    password: Psycho_1984
+    to: amine.tamdy@gmail.com
+    subject: "{{ current_host }} fail to start service {{ target }}"
+    body: "System {{ current_host }} has been failed to start service. {{ failed_service }}"
+    secure: starttls #always
+  ignore_errors: yes
+  delegate_to: localhost
+
+#
+#
+# Create jira issue
+
+
+
+#
+#
+# Create jira task
+
+
+- debug:
+    msg: "{{ current_host }} - {{ failed_service }} - {{ target }}"
+

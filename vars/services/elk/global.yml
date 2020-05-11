@@ -1,0 +1,50 @@
+---
+
+email_destination: 
+email_user: xenos.psy@gmail.com 
+email_password: Psycho_1984
+email_server: smtp.gmail.com
+email_server_port: 587
+email_subject: "ELK notification email"
+#email_body:
+
+jira_project:
+jira_user: 
+jira_password:  
+jira_issue_summary: 
+jira_issue_description:
+jira_task_summary: 
+jira_task_description:
+
+#
+# This is used for manual execution for automated execution this value will be false
+execution_manual: false
+
+#
+# this value is used with execution_manual and allow you to reponse by yes or no to break if there is error
+ask_on_failure: false
+
+#
+# if on_failure_break_execution is true this mean the execution will be breaked otherwise the execution will continue
+on_failure_break_execution: false
+
+#
+#
+# This values are used for the upgrade of elk package only
+install_elk_stack: true
+package_version: 7.6.2 # 7.4.0 #
+package_arch: x86_64
+file_directory: ../rpms
+files: 
+  logstash: 
+    - "logstash-{{ package_version }}.rpm"
+  elasticsearch: 
+    - "elasticsearch-{{ package_version }}-{{ package_arch }}.rpm"
+  apmserver: 
+    - "apm-server-{{ package_version }}-{{ package_arch }}.rpm"
+  kibana: 
+    - "kibana-{{ package_version }}-{{ package_arch }}.rpm"
+  beats: 
+    - "filebeat-{{ package_version }}-{{ package_arch }}.rpm"
+    - "metricbeat-{{ package_version }}-{{ package_arch }}.rpm"
+

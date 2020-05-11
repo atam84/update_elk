@@ -20,6 +20,7 @@
   ignore_errors: true
 
 - debug:
+    #msg: "{{ ansible_facts.services['{{ service_item.name }}.service'] }} - PID: {{ proc_pids.stdout_lines }} - nPID: {{ proc_pids.stdout_lines|length }}"
     msg: "{{ ansible_facts.services['{{ service_item.name }}.service'] }} - PID: {{ proc_pids.stdout_lines }} - nPID: {{ proc_pids.stdout_lines|length }}"
   ignore_errors: true
   when: activate_debug|default(false)|bool == true
