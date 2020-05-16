@@ -1,0 +1,24 @@
+---
+
+- name: "{{ target_hosts|upper }} - Check current version"
+  uri:
+    url: "{{ es_proto }}://{{ inventory_hostname }}:{{ es_http_port }}"
+    method: GET
+    user: "{{es_api_basic_auth_username|default(omit)}}"
+    password: "{{es_api_basic_auth_password|default(omit)}}"
+    return_content: yes
+    force_basic_auth: "{{ es_force_auth|default(no)|bool }}"
+  register: es_info
+  retries: "{{es_retry|default(10)|int}}"
+  delay: "{{es_retry|default(30)|int}}"
+
+- debug:
+    var: es_info
+  when: activate_debug|default(false)|bool == true
+
+- set_fact:
+    es_version: "{{ es_info.json.version.number|default('not_found') }}"
+
+- debug:
+    var: es_version
+  when: activate_debug|default(false)|bool == true

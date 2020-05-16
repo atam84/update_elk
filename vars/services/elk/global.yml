@@ -1,5 +1,18 @@
 ---
 
+es_disable_allocation: '{"persistent":{"cluster.routing.allocation.enable":"primaries"}}'
+es_enable_allocation: '{"persistent": {"cluster.routing.allocation.enable": null}}'
+es_http_port: 9200
+es_transport_port: 9300
+es_proto: http
+es_force_auth: no
+#es_api_basic_auth_username: elasticsearch_user
+#es_api_basic_auth_password: elasticsearch_password
+
+
+check_process: true
+check_ports: true
+
 email_destination: 
 email_user: xenos.psy@gmail.com 
 email_password: Psycho_1984
@@ -26,7 +39,7 @@ ask_on_failure: false
 
 #
 # if on_failure_break_execution is true this mean the execution will be breaked otherwise the execution will continue
-on_failure_break_execution: false
+on_failure_break_execution: true
 
 #
 #

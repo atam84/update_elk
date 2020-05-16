@@ -1,0 +1,8 @@
+---
+
+
+- name: "{{ target_hosts|upper }} - Check if ports are in use"
+  include_tasks: check_ports.yml
+  loop: "{{ services.stop_services }}"
+  loop_control:
+    loop_var: service_item

@@ -1,0 +1,28 @@
+---
+
+#
+#
+# Restart services, even when the server is rebooted the services will be restarted if services.restar_services_after_the_upgrade = true
+- name: "{{ target_hosts|upper }} - Bring services up"
+  include_tasks: start_services.yml
+  loop: "{{ services.stop_services }}"
+  loop_control:
+    loop_var: service_item
+  when: services.restar_services_after_the_upgrade|default(false)|bool == true
+
+
+#
+#
+# In the case of upgrade in manual execution ask if we want to go to the next server
+- pause:
+    prompt: "Do you want continu with the next server [ yes/no ]"
+    echo: yes
+  register: result_do_next
+  when: execution_manual|default(false)|bool == true
+
+- name: "{{ target_hosts|upper }} - Breaking the exetion" 
+  fail:
+    msg: "Breaking the exetion"
+  when: 
+    - execution_manual|default(false)|bool == true
+    - result_do_next|default(true)|bool == false

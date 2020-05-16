@@ -1,0 +1,8 @@
+---
+
+- name: "{{ target_hosts|upper }} - Check if process are started"
+  include_tasks: check_process.yml
+  loop: "{{ services.stop_services }}"
+  loop_control:
+    loop_var: service_item
+

@@ -1,0 +1,6 @@
+---
+
+- name: "{{ target_hosts|upper }} - Include Plugins API"
+  include_tasks: "api_plugin/{{ item }}"
+  loop: "{{ plugin_api }}"
+

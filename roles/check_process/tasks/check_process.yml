@@ -1,0 +1,73 @@
+---
+
+#
+#
+# Check if process is started
+- name: "{{ target_hosts|upper }} - Check if process {{ service_item.name }} is running"
+  shell: |
+    nproc=0
+    for i in {1..{{ service_item.retry }}}
+    do
+      sleep {{ service_item.delay }}
+      nproc=$(ps -eo pid,command | grep {{ service_item.process_find|default(service_item.name) }} | grep -v grep | wc -l)
+      if [ ${nproc} -ge {{ service_item.min_proc_number }} ]; then
+        echo ${nproc}
+        break
+      fi
+    done
+    if [ ${nproc} -lt {{ service_item.min_proc_number }} ]; then
+      echo ${nproc}
+    fi
+  register: nprocessus
+  when: service_item.check_mode is search("process")
+
+
+#
+#
+# this block is triggered when we want check process is started by checking the process ids
+- block:
+    - debug:
+        var: nprocessus
+      when: activate_debug|default(false)|bool == true
+
+    #
+    #
+    # you will be prompted if the execution is manual ans ask_on_failure is true and on_failure_break_execution is false otherwise the prompt will be skepped
+    - pause:
+        prompt: "Do you want break the script execution (you can troubleshout the error in the server side then continue) [ yes/no ]"
+        echo: yes
+      register: result
+      when: 
+        - nprocessus.stdout|int < service_item.min_proc_number
+        - execution_manual|bool == true
+        - ask_on_failure|bool == true
+
+    # set variable for the manual execution
+    - set_fact:
+        nproc_break_execution: "{{ result.user_input }}"
+      when: 
+        - nprocessus.stdout|int < service_item.min_proc_number
+        - execution_manual|bool == true
+        - ask_on_failure|bool == true
+        #- on_failure_break_execution|bool == false
+
+    # set variable for automatic execution
+    - set_fact:
+        nproc_break_execution: "{{ on_failure_break_execution }}"
+      when: 
+        - nprocessus.stdout|int < service_item.min_proc_number
+        - on_failure_break_execution|bool == true
+        - ask_on_failure|bool == false
+
+    - debug:
+        var: nproc_break_execution
+      when: activate_debug|default(false)|bool == true
+
+
+    - name: "{{ target_hosts|upper }} - Breaking the exetion cause (number of process not correct)" 
+      fail:
+        msg: "Breaking the exetion cause (number of process not correct)  nproc = {{ nprocessus.stdout }} -- needed = {{ service_item.min_proc_number }}"
+      when: 
+        - nproc_break_execution|default(false)|bool == true
+
+  when: service_item.check_mode is search("process")

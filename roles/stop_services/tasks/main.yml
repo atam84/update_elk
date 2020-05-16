@@ -1,0 +1,7 @@
+---
+
+- name: "{{ target_hosts|upper }} - Stop services"
+  include_tasks: stop_services.yml
+  loop: "{{ services.stop_services }}"
+  loop_control:
+    loop_var: service_item

@@ -1,0 +1,25 @@
+---
+
+- name: "{{ target_hosts|upper }} - Wait for cluster health to return to green"
+  uri: 
+    url: "{{ es_proto }}://{{ inventory_hostname }}:{{ es_http_port }}/_cluster/health"
+    method: GET
+    user: "{{es_api_basic_auth_username|default(omit)}}"
+    password: "{{es_api_basic_auth_password|default(omit)}}"
+    return_content: yes
+    force_basic_auth: "{{ es_force_auth|default(no)|bool }}"
+  register: es_cluster_health
+  until: "es_cluster_health.json.status == 'green'"
+  retries: "{{es_retry|default(10)|int}}"
+  delay: "{{es_retry|default(30)|int}}"
+
+- debug:
+    var: es_cluster_health
+  when: activate_debug|default(false)|bool == true
+
+- set_fact:
+    es_status: "{{ es_cluster_health.json.status|default('unknown') }}"
+
+- debug:
+    var: es_status
+  when: activate_debug|default(false)|bool == true

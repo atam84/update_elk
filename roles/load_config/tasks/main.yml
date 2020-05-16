@@ -1,0 +1,53 @@
+---
+#
+#
+# Load main.yml variable
+- name: "{{ target_hosts|upper }} - Include defaults global vars"
+  include_vars:
+    file: "../../vars/main.yml"
+#
+#
+# this section allow you to load specific vars to overwrite the global vars in vars/main.yml and set values for all services
+- name: "{{ target_hosts|upper }} - Include global vars global.yml if exist this overwrite the global vars"
+  include_vars:
+    file: "../../vars/services/{{ service }}/global.yml"
+  ignore_errors: true
+#
+#
+# this section allow you to load specific vars to overwrite the global vars in vars/main.yml or the global vars of all services global.yml
+- name: "{{ target_hosts|upper }} - Include global vars {{ target_hosts }}_global.yml if exist this overwrite the global vars"
+  include_vars:
+    file: "../../vars/services/{{ service }}/{{ target_hosts }}_global.yml"
+  ignore_errors: true
+#
+# WILL BE DELETED
+# display file_directory when debug mode is active
+- debug:
+    var: file_directory|default('not used')
+  when: activate_debug|default(false)|bool == true
+#
+#
+# WILL BE DELETED
+# display files when debug mode is active
+- debug:
+    var: files|default('not used')
+  when: activate_debug|default(false)|bool == true
+#
+#
+# load all services definition from ../../vars/services/<service_name>.yml in {{ target_hosts }} variable
+- name: "{{ target_hosts|upper }} - Loading all services definition for {{ target_hosts }}"
+  include_vars: 
+    file: "../../vars/services/{{ service }}/{{ target_hosts }}.yml"
+    name: "{{ target_hosts }}"
+#
+#
+# copy {{ target_hosts }} into services var more simple to use and more clear to understand
+- name: "{{ target_hosts|upper }} - copy results of loaded vars into services variable"
+  set_fact:
+    services: "{{ lookup('vars', target_hosts) }}"
+
+#
+#
+# Load the existing services in the server
+- name: "{{ target_hosts|upper }} - Load ansible service facts"
+  service_facts:

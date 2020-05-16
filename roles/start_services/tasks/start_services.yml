@@ -1,0 +1,19 @@
+---
+
+#
+#
+# start service
+- name: "{{ target_hosts|upper }} - Start service {{ service_item.name }}.service"
+  systemd:
+    name: "{{ service_item.name }}.service"
+    state: restarted
+  register: service_status
+  ignore_errors: true
+
+
+#
+#
+# display result when debug mode is actived
+- debug:
+    var: service_status
+  when: activate_debug|default(false)|bool == true

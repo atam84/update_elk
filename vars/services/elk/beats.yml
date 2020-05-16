@@ -14,4 +14,4 @@ stop_services:
 
 restar_services_after_the_upgrade: true
 
-reboot_the_server_after_the_upgrade: false
+#reboot_the_server_after_the_upgrade: false

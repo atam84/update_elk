@@ -13,12 +13,11 @@ stop_services:
 
 
 
+
 restar_services_after_the_upgrade: true
 
 
 #
 #
-# This value is related to the upgrade of the service itself for the update/upgrade of the os see the value in <service>_global.yml or ../main.yml
-# If you define the reboot after the os update to true and this value to true the server will reboot two time. 
-reboot_the_server_after_the_upgrade: false
+#reboot_the_server_after_the_upgrade: false
 

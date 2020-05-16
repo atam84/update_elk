@@ -1,0 +1,61 @@
+---
+
+#
+#
+# this block is triggered when we want check process is started by checking the ports using by the process to listen 
+- name: "{{ target_hosts|upper }} - Wait until the process started and start ports listning"
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: "{{ item }}"
+    state: started
+    timeout: 60
+  loop: "{{ service_item.ports }}"
+  ignore_errors: true
+  when:
+    - service_item.check_mode is search("port")
+    - service_status.changed|bool == true
+    - service_status.failed|bool == false
+
+- block:
+    #
+    #
+    # you will be prompted if the execution is manual ans ask_on_failure is true and on_failure_break_execution is false otherwise the prompt will be skepped
+    - pause:
+        prompt: "Do you want break the script execution (you can troubleshout the error in the server side then continue) [ yes/no ]"
+        echo: yes
+      register: result
+      when:
+        - execution_manual|bool == true
+        - ask_on_failure|bool == true
+        #- on_failure_break_execution|bool == false
+
+    # set variable for the manual execution
+    - set_fact:
+        nproc_break_execution: "{{ result.user_input }}"
+      when: 
+        - execution_manual|bool == true
+        - ask_on_failure|bool == true
+        #- on_failure_break_execution|bool == true
+
+    # set variable for automatic execution
+    - set_fact:
+        nproc_break_execution: "{{ on_failure_break_execution }}"
+      when: 
+        - on_failure_break_execution|bool == true
+        - ask_on_failure|bool == false
+    
+    - debug:
+        var: service_break_execution
+      when: activate_debug|default(false)|bool == true
+
+    - name: "{{ target_hosts|upper }} - Breaking the exetion cause (service not started)" 
+      fail: 
+        msg: "Breaking the exetion cause (service not started) {{ service_item.name }}.service not present or execution error."
+      when: 
+        - service_break_execution|default(false)|bool == true
+
+  when:
+    - service_item.check_mode is search("port")
+    - service_status.changed|bool == false
+    - service_status.failed|bool == true
+

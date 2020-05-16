@@ -1,11 +1,8 @@
 ---
-# check if the service is up and running
-### block 1 -- we need to create a loop
-
 #
 #
 # if debug is actived, display the service processed now
-- name: "stop_services.yml -- Debug {{ target_hosts }}"
+- name: "{{ target_hosts|upper }} - ROLE: stop_services -- Debug {{ target_hosts }}"
   debug:
     var: service_item
   when: activate_debug|default(false)|bool == true
@@ -19,9 +16,12 @@
   register: proc_pids
   ignore_errors: true
 
-- debug:
+- name: "{{ target_hosts|upper }} - Service {{ service_item.name }}.service status"
+  vars:
+    srv: "{{ service_item.name }}.service"
+  debug:
     #msg: "{{ ansible_facts.services['{{ service_item.name }}.service'] }} - PID: {{ proc_pids.stdout_lines }} - nPID: {{ proc_pids.stdout_lines|length }}"
-    msg: "{{ ansible_facts.services['{{ service_item.name }}.service'] }} - PID: {{ proc_pids.stdout_lines }} - nPID: {{ proc_pids.stdout_lines|length }}"
+    msg: "{{ ansible_facts.services[srv] }} - PID: {{ proc_pids.stdout_lines }} - nPID: {{ proc_pids.stdout_lines|length }}"
   ignore_errors: true
   when: activate_debug|default(false)|bool == true
 
@@ -58,7 +58,7 @@
 #
 #
 # debug the errors
-- name: wait_for errors
+- name: "{{ target_hosts|upper }} - Wait_for errors"
   debug:
     var: errors
   when: activate_debug|default(false)|bool == true
@@ -70,4 +70,3 @@
 # add instructions to ask if we want to break the exection or continue if the process is not stopped or killed
 #
 ######################
-

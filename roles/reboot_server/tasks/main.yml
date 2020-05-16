@@ -1,0 +1,13 @@
+---
+
+- name: "{{ target_hosts|upper }} - Reboot servers"
+  reboot:
+    msg: "We reboot that servers."
+
+- name: "{{ target_hosts|upper }} - waiting the servers to become reachable"
+  wait_for_connection:
+    connect_timeout: "{{ reboot_connect_timeout }}"
+    delay: "{{ reboot_delay }}"
+
+        
+        

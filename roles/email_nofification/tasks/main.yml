@@ -1,0 +1,14 @@
+---
+
+#
+#
+# send email and/or create jira only if the execution will break
+- name: "{{ target_hosts|upper }} - Notification (check running process)"
+  include_tasks: notification.yml
+  vars:
+    current_host: "{{ inventory_hostname }}"
+    failed_service: "{{ service_status }}"
+    target: "{{ target_hosts }}"
+#  when:
+#    - service_status.changed|bool == false
+#    - service_status.failed|bool == true
