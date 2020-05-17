@@ -2,11 +2,14 @@
 
 stop_services:
   - name: kibana
-    check_mode: port
+    check_mode: port,process
     ports:
       - 5601
-
-
+    process_find: "share/kibana/bin/"
+    min_proc_number: 1
+    retry: 5
+    delay: 10
+      
 
 restar_services_after_the_upgrade: true
 

@@ -1,5 +1,10 @@
 ---
 
+- set_fact:
+    break_exec_cause: ""
+    break_service: ""
+    exec_is_success: ""
+
 #
 #
 # this block is triggered when we want check process is started by checking the ports using by the process to listen 
@@ -11,10 +16,45 @@
     timeout: 60
   loop: "{{ service_item.ports }}"
   ignore_errors: true
+  register: ports_status
   when:
     - service_item.check_mode is search("port")
     - service_status.changed|bool == true
     - service_status.failed|bool == false
+
+
+- set_fact:
+    break_exec_cause: "ports not listning"
+    break_service: "{{ service_item }}"
+    exec_is_success: false
+  when: 
+    - service_item.check_mode is search("port")
+    #- on_failure_break_execution|default(false)|bool == true
+    - ports_status.failed|default(false)|bool == true
+    #- execution_manual|default(false)|bool == false
+    #on_failure_break_execution
+
+
+- set_fact:
+    break_exec_cause: "ports not listning"
+    break_service: "{{ service_item }}"
+    exec_is_success: true
+  when: 
+    - service_item.check_mode is search("port")
+    #- on_failure_break_execution|default(false)|bool == true
+    - ports_status.failed|default(false)|bool == true
+    #- execution_manual|default(false)|bool == false
+    #on_failure_break_execution
+
+#
+#- name: "{{ target_hosts|upper }} - Breaking the exetion cause (service seems not started)" 
+#  fail: 
+#    msg: "Breaking the exetion cause (service seems not started) {{ service_item.name }}.service ports not listning."
+#  when: 
+#    - on_failure_break_execution|default(false)|bool == true
+#    - ports_status.failed|default(false)|bool == true
+#
+
 
 - block:
     #
@@ -50,7 +90,7 @@
 
     - name: "{{ target_hosts|upper }} - Breaking the exetion cause (service not started)" 
       fail: 
-        msg: "Breaking the exetion cause (service not started) {{ service_item.name }}.service not present or execution error."
+        msg: "Breaking the exetion cause (service not started) {{ service_item.name }}.service ports not listning."
       when: 
         - service_break_execution|default(false)|bool == true
 
@@ -58,4 +98,7 @@
     - service_item.check_mode is search("port")
     - service_status.changed|bool == false
     - service_status.failed|bool == true
+    - execution_manual|default(false)|bool == true
+    - ask_on_failure|default(false)|bool == true
+    - on_failure_break_execution|bool == true
 

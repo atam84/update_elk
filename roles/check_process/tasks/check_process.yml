@@ -1,5 +1,12 @@
 ---
 
+- set_fact:
+    break_exec_cause: ""
+    break_service: ""
+    exec_is_success: ""
+
+- debug:
+    var: service_item
 #
 #
 # Check if process is started
@@ -20,7 +27,30 @@
     fi
   register: nprocessus
   when: service_item.check_mode is search("process")
+  
 
+- set_fact:
+    break_exec_cause: "number of process: {{ nprocessus.stdout|int }} wanted: {{ service_item.min_proc_number }}"
+    break_service: "{{ service_item }}"
+    exec_is_success: false
+  when: 
+    #- on_failure_break_execution|default(false)|bool == true
+    - nprocessus.stdout|default(0)|int < service_item.min_proc_number|default(-1)|int
+    #- execution_manual|default(false)|bool == false
+    - service_item.check_mode is search("process")
+    #on_failure_break_execution
+
+
+- set_fact:
+    break_exec_cause: "number of process: {{ nprocessus.stdout|int }} wanted: {{ service_item.min_proc_number }}"
+    break_service: "{{ service_item }}"
+    exec_is_success: true
+  when: 
+    #- on_failure_break_execution|default(false)|bool == true
+    - nprocessus.stdout|default(0)|int >= service_item.min_proc_number|default(1)|int
+    #- execution_manual|default(false)|bool == false
+    - service_item.check_mode is search("process")
+    #on_failure_break_execution
 
 #
 #
@@ -39,16 +69,13 @@
       register: result
       when: 
         - nprocessus.stdout|int < service_item.min_proc_number
-        - execution_manual|bool == true
-        - ask_on_failure|bool == true
+        
 
     # set variable for the manual execution
     - set_fact:
         nproc_break_execution: "{{ result.user_input }}"
       when: 
         - nprocessus.stdout|int < service_item.min_proc_number
-        - execution_manual|bool == true
-        - ask_on_failure|bool == true
         #- on_failure_break_execution|bool == false
 
     # set variable for automatic execution
@@ -56,8 +83,7 @@
         nproc_break_execution: "{{ on_failure_break_execution }}"
       when: 
         - nprocessus.stdout|int < service_item.min_proc_number
-        - on_failure_break_execution|bool == true
-        - ask_on_failure|bool == false
+        
 
     - debug:
         var: nproc_break_execution
@@ -70,4 +96,8 @@
       when: 
         - nproc_break_execution|default(false)|bool == true
 
-  when: service_item.check_mode is search("process")
+  when: 
+    - service_item.check_mode is search("process")
+    - execution_manual|default(false)|bool == true
+    - ask_on_failure|default(false)|bool == true
+    - on_failure_break_execution|bool == true

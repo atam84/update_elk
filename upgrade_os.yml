@@ -14,7 +14,7 @@
    #- role: email_nofification
    #  vars:
    #    - notify_step: "start"
-   #  when: notify_start_operation == true
+   #  when: notify_operation == true
       
    - role: start_services
 
@@ -46,39 +46,75 @@
    - role: start_services
 
    - role: check_process
-     when: check_process == true
+     when: 
+       - check_process == true
+       - break_exec|default(false)|bool == false
 
    - role: check_ports
-     when: check_ports == true
+     when: 
+       - check_ports == true
+       - break_exec|default(false)|bool == false
 
 
    - role: api_check
      vars:
-      - plugin_api: "{{ api_plugin_end }}"
-      - es_retry: 10
-      - es_delay: 30
+       - plugin_api: "{{ api_plugin_end }}"
+       - es_retry: 10
+       - es_delay: 30
      when: 
        - api_check|default(false)|bool == true
        - api_check_after_stop|default(false)|bool == true
+       - break_exec|default(false)|bool == false
        
-
+   #
+   # Send email if needed when the execution is success
    - role: email_nofification
      vars:
        - notify_step: "end"
-       - notify_if: "all" # error, success, all, both
-     when: notify_start_operation|default(false)|bool == true
+       - notify_if: "success" # error, success
+     when: 
+       - notify_operation|default(false)|bool == true
+       - notify_on_success|default(false)|bool == true
+       - exec_is_success|default(false)|bool == true
+       #- break_exec|default(false)|bool == false
 
+   #
+   # Send email if needed when the execution is failed
+   - role: email_nofification
+     vars:
+       - notify_step: "end"
+       - notify_if: "error" # error, success
+     when: 
+       - notify_operation|default(false)|bool == true
+       - notify_on_failure|default(false)|bool == true
+       - exec_is_success|default(false)|bool == false
+       #- break_exec|default(false)|bool == true
+
+   #
+   # Create tasks if needed when the execution is success
    - role: create_jira
      vars:
-       - create_jira_if: "all" # error, success, all, both
-       - create_jira_on_success: "task"
-       - create_jira_on_error: "issue"
-     when: create_jira|default(false)|bool == true
+       - create_jira: "task"
+     when: 
+       - create_jira|default(false)|bool == true
+       - create_jira_on_success|default(false)|bool == true
+       - exec_is_success|default(false)|bool == true
+       #- break_exec|default(false)|bool == false
 
-#- include: playbooks/update/main.yml target_hosts='elasticsearch' service='elk'
+   #
+   # Create issue if needed when the execution is failed
+   - role: create_jira
+     vars:
+       - create_jira: "issue"
+     when: 
+       - create_jira|default(false)|bool == true
+       - create_jira_on_failure|default(false)|bool == true
+       - exec_is_success|default(false)|bool == false
+       #- break_exec|default(false)|bool == true
 
-#- include: playbooks/update/main.yml target_hosts='kibana' service='elk'
+   #
+   # Break the execution
+   - role: break_execution
+     when: on_failure_break_execution|default(false)|bool == true
 
-#- include: playbooks/update/main.yml target_hosts='logstash' service='elk'
 
-#- include: playbooks/update/main.yml target_hosts='beats' service='elk' parallel_host=5

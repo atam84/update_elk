@@ -1,0 +1,8 @@
+---
+
+- name: "{{ target_hosts|upper }} - Breaking the exetion" 
+  fail: 
+    msg: "Breaking the exetion {{ break_service.name }}.service cause: {{ break_exec_cause }}.\n {{ break_service }}"
+
+
+

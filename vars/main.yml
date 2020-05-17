@@ -8,10 +8,11 @@ activate_debug: false
 update_os: false                           # global variable to trigger the os update, can by set in the service/<service>_global.yml file
 reboot_after_os_update: false              # reboot the server after the os update, have the same think as update_os
 
-send_email_notification_on_failure: true   # send an email on failure, can by set in the service/<service>_global.yml file
-send_email_notification_on_success: true   # send an email on success, can by set in the service/<service>_global.yml file
-create_jira_issue_on_failure: true         # create issue on failure, can by set in the service/<service>_global.yml file
-create_jira_task_on_success: true          # create issue on success (to check the server for example), can by set in the service/<service>_global.yml file
+notify_operation: true
+notify_on_failure: true   # send an email on failure, can by set in the service/<service>_global.yml file
+notify_on_success: true   # send an email on success, can by set in the service/<service>_global.yml file
+create_jira_on_failure: false         # create issue on failure, can by set in the service/<service>_global.yml file
+create_jira_on_success: false          # create issue on success (to check the server for example), can by set in the service/<service>_global.yml file
 
 
 jira_server: set_jira_server_here          # jira server
