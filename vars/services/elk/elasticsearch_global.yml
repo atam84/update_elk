@@ -1,14 +1,14 @@
 ---
 
 update_os: true
-update_app: true
-reboot_after_os_update: false
+update_app: false
+reboot_after_os_update: true
 
-#notify_operation: false
-#notify_on_failure: false
-#notify_on_success: false
-#create_jira_on_failure: false 
-#create_jira_on_success: false 
+notify_operation: false
+notify_on_failure: false
+notify_on_success: false
+create_jira_on_failure: false 
+create_jira_on_success: false 
 
 
 check_process: true

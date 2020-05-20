@@ -1,21 +1,20 @@
 ---
 
 update_os: true
-reboot_after_os_update: false
+reboot_after_os_update: true
+update_app: false
 
-update_app: true
-
-#notify_operation: false
-#notify_on_failure: false
-#notify_on_success: false
-#create_jira_on_failure: false 
-#create_jira_on_success: false 
+notify_operation: false
+notify_on_failure: false
+notify_on_success: false
+create_jira_on_failure: false 
+create_jira_on_success: false 
 
 check_process: true
 check_ports: true
 api_check: false
-api_check_on_before_stop: false
-api_check_on_after_stop: false
+api_check_before_stop: false
+api_check_after_stop: false
 
 
 

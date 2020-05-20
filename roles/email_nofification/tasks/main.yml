@@ -11,5 +11,7 @@
     target: "{{ target_hosts }}"
     notify: "{{ notify_if }}"
 #  when:
+#    - notify_operation|default(false)|bool == true
+#    - notify_on_failure|default(false)|bool == true or notify_on_success|default(false)|bool == true
 #    - service_status.changed|bool == false
 #    - service_status.failed|bool == true

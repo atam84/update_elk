@@ -3,23 +3,10 @@
 #
 #
 # we need to disable all non os repos
-- name: "{{ target_hosts|upper }} - Disable repos"
-  debug:
-    msg: "Disable repos"
-
-
-
 - name: "{{ target_hosts|upper }} - Update the operating system"
   yum:
     name: "*"
     update_cache: yes
     state: latest
+    disablerepo: "{{ disable_repos }}"
 
-
-#
-#
-# we need to re-enable the repos again
-- name: "{{ target_hosts|upper }} - Re-enable repos"
-  debug:
-    msg: "Re-enable repos"
-  

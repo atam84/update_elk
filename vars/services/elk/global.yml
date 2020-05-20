@@ -1,5 +1,10 @@
 ---
 
+#
+#
+# Repos to disable for the OS update
+disable_repos: "Kubernetes,HighAvailability"
+
 es_disable_allocation: '{"persistent":{"cluster.routing.allocation.enable":"primaries"}}'
 es_enable_allocation: '{"persistent": {"cluster.routing.allocation.enable": null}}'
 es_http_port: 9200
@@ -14,8 +19,8 @@ check_process: true
 check_ports: true
 
 email_destination: 
-email_user: xenos.psy@gmail.com 
-email_password: Psycho_1984
+email_user: notifier@gmail.com 
+email_password: secret
 email_server: smtp.gmail.com
 email_server_port: 587
 email_subject: "ELK notification email"
